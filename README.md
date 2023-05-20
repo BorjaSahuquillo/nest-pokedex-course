@@ -4,8 +4,6 @@
 
 # Ejecutar en desarollo
 
-Prueba de git
-
 1. Clonar repo
 2. Ejecutar
 ```
