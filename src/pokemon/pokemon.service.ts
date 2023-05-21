@@ -85,7 +85,7 @@ export class PokemonService {
   private handleExceptions(error: any) {
     if (error.code === 11000) {
       throw new BadRequestException(
-        `Pokemon exits in fb ${JSON.stringify(error.keyValue)}`,
+        `Pokemon exits in db ${JSON.stringify(error.keyValue)}`,
       );
     }
     console.log(error);
