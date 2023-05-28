@@ -1,23 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import axios, { AxiosInstance } from 'axios';
 import { PokeResponse } from './interfaces/poke-response.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pokemon } from '../pokemon/entities/pokemon.entity';
 import { Model } from 'mongoose';
+import { AxiosAdapter } from '../common/adapters/axios.adapter';
 @Injectable()
 export class SeedService {
-  private readonly axios: AxiosInstance = axios;
-
   constructor(
     @InjectModel(Pokemon.name)
     private readonly pokemonModel: Model<Pokemon>,
+    private readonly http: AxiosAdapter,
   ) {}
 
   // With only one request for all pokemons
   async executeSeed() {
     await this.pokemonModel.deleteMany(); // delete * from pokemons;
 
-    const { data } = await this.axios.get<PokeResponse>(
+    const data = await this.http.get<PokeResponse>(
       'https://pokeapi.co/api/v2/pokemon?limit=650',
     );
 
@@ -37,7 +36,7 @@ export class SeedService {
   }
 
   /**
-   * With one request for pokemon with promiseALl. Not recommended
+   * With one request for pokemon with promiseALl. Not recommended without adapter pattern
   async executeSeed() {
     await this.pokemonModel.deleteMany(); // delete * from pokemons;
 
