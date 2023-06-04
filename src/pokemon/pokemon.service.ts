@@ -4,19 +4,27 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
 import { isValidObjectId, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pokemon } from './entities/pokemon.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import * as process from 'process';
 
 @Injectable()
 export class PokemonService {
+  private defaultLimit: number;
   constructor(
     @InjectModel(Pokemon.name)
     private readonly pokemonModel: Model<Pokemon>,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.defaultLimit = configService.get<number>('defaultLimit');
+    // console.log({ defaultLimit: configService.get<number>('defaultLimit') });
+  }
   async create(createPokemonDto: CreatePokemonDto) {
     createPokemonDto.name = createPokemonDto.name.toLowerCase();
 
@@ -29,7 +37,7 @@ export class PokemonService {
   }
 
   findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = this.defaultLimit, offset = 0 } = paginationDto;
     return this.pokemonModel
       .find()
       .limit(limit)
@@ -95,7 +103,6 @@ export class PokemonService {
         `Pokemon exits in db ${JSON.stringify(error.keyValue)}`,
       );
     }
-    console.log(error);
     throw new InternalServerErrorException(
       `Can't update a new pokemon - Check server logs`,
     );
